@@ -1,0 +1,462 @@
+install.packages(c("gert", "ipred", "ISLR", "rgdal", "rmarkdown", "vroom", "waldo", "xfun"))
+install.packages("renv")
+# Packages ----
+library(palmerpenguins)
+library(tidymodels)
+install.packages("palmerpenguins")
+install.packages("tidymodels")
+# Packages ----
+library(palmerpenguins)
+library(tidymodels)
+palmerpenguins::penguins
+palmerpenguins::penguins_raw
+## Data
+penguins
+penguins
+penguins %>%
+drop_na(ends_with("mm")))
+penguins %>%
+drop_na(ends_with("mm"))
+penguins %>% ends_with("mm")
+penguins %>% filter(ends_with("mm"))
+penguins
+## Data
+penguins; nrow(penguins)
+penguins %>% drop_na(ends_with("mm"))
+penguins
+summary(penguins)
+152+68+124
+glimpse(penguins)
+table(penguins$species)
+table(penguins$island)
+table(penguins$bill_depth_mm)
+table(penguins$bill_depth_mm)
+table(penguins$flipper_length_mm)
+table(penguins$body_mass_g)
+table(penguins$sex)
+table(penguins$year)
+penguins %>% drop_na(ends_with("mm"))
+penguins1 <- penguins
+penguins2 <- penguins %>% drop_na(ends_with("mm"))
+all.equal(penguins1, penguins2)
+penguins
+penguins1 <- penguins %>% mutate(ID = 1:nrow(penguins))
+penguins1
+penguins2 <- penguins %>% mutate(ID = 1:nrow(penguins)) %>% drop_na(ends_with("mm"))
+setdiff(penguins1$ID, penguins2$ID)
+penguins1[c(4, 272),]
+penguins1[c(4, 5, 272),]
+penguins1[c(4, 5, 272),] %>% drop_na(ends_with("mm"))
+penguins1
+penguins1[c(4, 9, 5, 272),]
+penguins1[c(4, 9, 5, 272),] %>% drop_na(ends_with("mm"))
+colSums(is.na(penguins))
+## Filtro los datos con las que tengan NA para las columnas que terminan en mm
+colSums(is.na(penguins));(filtered_penguins <- penguins %>% drop_na(ends_with("mm")))
+rm(penguins1)
+rm(penguins2)
+## Exploration
+filtered_penguins %>%
+ggplot(aes(x = bill_length_mm, y = bill_depth_mm, col = species)) +
+geom_point()
+rand_forest
+rand_forest()
+rand_forest() %>%
+set_engine("ranger")
+rand_forest() %>%
+set_engine("ranger") %>%
+set_mode("classification")
+## Model Fit
+model <- rand_forest() %>%
+set_engine("ranger") %>%
+set_mode("classification") %>%
+fit(species ~ bill_length_mm + bill_depth_mm + flipper_length_mm + body_mass_g, data = filtered_penguins)
+model
+predict(model, new_data = head(filtered_penguins), type = "prob")
+## Model Performance
+filtered_penguins %>%
+bind_cols(predict(model, new_data = filtered_penguins)) %>%
+count(species, .pred_class)
+predict(model, new_data = filtered_penguins)
+## Model Performance
+filtered_penguins %>%
+bind_cols(predict(model, new_data = filtered_penguins)) %>%
+count(species, .pred_class)
+## Model Performance
+caret::confusionMatrix(bind_cols(predict(model, new_data = filtered_penguins), filtered_penguins$species)
+## Model Performance
+caret::confusionMatrix(predict(model, new_data = filtered_penguins), filtered_penguins$species)
+## Model Performance
+caret::confusionMatrix(predict(model, new_data = filtered_penguins), filtered_penguins$species)
+predict(model, new_data = filtered_penguins)
+predict(model, new_data = filtered_penguins)$pred_class
+res <- predict(model, new_data = filtered_penguins)
+res$.pred_class
+rm(res)
+## Model Performance
+caret::confusionMatrix(predict(model, new_data = filtered_penguins)$.pred_class, filtered_penguins$species)
+filtered_penguins
+penguin_split <- initial_split(filtered_penguins, strata = species)
+penguin_split
+86/346
+set.seed(123)
+penguin_split <- initial_split(filtered_penguins, strata = species, prop = 0.75)
+penguin_split
+class(penguin_split)
+penguin_train <- training(penguin_split)
+penguin_test <- testing(penguin_split)
+penguin_train
+penguin_test
+filtered_penguins %>%
+select(species, ends_with("mm"), body_mass_g)
+## Creo un remuestreo por bootstrap de los datos de entrenamiento, para evaluar nuestros modelos.
+set.seed(123)
+penguin_boot <- bootstraps(penguin_train)
+penguin_boot
+nrow(penguin_boot)
+penguin_boot <- bootstraps(data = penguin_train, times = 5)
+penguin_boot
+set.seed(123)
+penguin_boot <- bootstraps(data = penguin_train, times = 25)
+penguin_boot
+penguin_boot <- bootstraps(data = penguin_train, times = 10)
+penguin_boot
+penguin_boot$splits
+penguin_boot$id
+logistic_reg() %>% set_engine("glm")
+rand_forest()
+rand_forest() %>% set_mode("classification")
+rand_forest() %>% set_mode("classification") %>% set_engine("ranger")
+workflow()
+workflow() %>% add_formula(sex ~ .)
+workflow() %>% add_formula(species ~ .)
+workflow() %>% add_formula(species ~ bill_length_mm + bill_depth_mm + flipper_length_mm + body_mass_g)
+penguin_wf
+## Especificación del modelo
+rf_spec <- rand_forest() %>% set_mode("classification") %>% set_engine("ranger")
+rf_spec
+## Creo el flujo de trabajo para el modelo
+penguin_wf <- workflow() %>% add_formula(species ~ bill_length_mm + bill_depth_mm + flipper_length_mm + body_mass_g)
+penguin_wf
+penguin_wf
+penguin_wf %>%
+add_model(rf_spec)
+yardstick::metric_set()
+yardstick::metric_set
+rf_rs <- penguin_wf %>%
+add_model(rf_spec) %>%
+fit_resamples(
+resamples = penguin_boot,
+control = control_resamples(save_pred = TRUE)
+)
+rf_rs
+rf_rs
+as.data.frame(rf_rs)
+rf_rs
+rf_rs$splits
+rf_rs$id
+rf_rs$.metrics
+vfold_cv(penguin_train, v = 5)
+penguin_boot
+set.seed(123)
+penguin_boot <- bootstraps(data = penguin_train, times = 10)
+penguin_boot
+set.seed(123)
+vfold_cv(penguin_train, v = 10)
+## Creo una particion aleatoria para la validacion crizada
+penguin_cv <-vfold_cv(data = penguin_train, v = 10)
+penguin_cv
+## Creo una particion aleatoria para la validacion crizada
+penguin_cv <-vfold_cv(data = penguin_train, v = 10)
+penguin_cv
+## Creo una particion aleatoria para la validacion crizada
+set.seed(123);penguin_cv <-vfold_cv(data = penguin_train, v = 10)
+penguin_cv
+rf_rs <- penguin_wf %>%
+add_model(rf_spec) %>%
+fit_resamples(
+resamples = penguin_cv,
+control = control_resamples(save_pred = TRUE)
+)
+rf_rs
+rf_rs
+rf_rs$.metrics
+yardstick::metric_set()
+rf_rs$.metrics
+metric_set(accuracy, roc_auc)
+rf_rs <- penguin_wf %>%
+add_model(rf_spec) %>%
+fit_resamples(
+resamples = penguin_cv,
+metrics = metric_set(accuracy, roc_auc),
+control = control_resamples(save_pred = TRUE)
+)
+rf_rs$.metrics
+rf_rs <- penguin_wf %>%
+add_model(rf_spec) %>%
+fit_resamples(
+resamples = penguin_cv,
+metrics = metric_set(accuracy, roc_auc, sensitivity, specificity),
+control = control_resamples(save_pred = TRUE)
+)
+rf_rs
+rf_rs$.metrics
+rf_rs <- penguin_wf %>%
+add_model(rf_spec) %>%
+fit_resamples(
+resamples = penguin_cv,
+metrics = metric_set(accuracy, roc_auc, f_meas),
+control = control_resamples(save_pred = TRUE)
+)
+rf_rs$.metrics
+fit_resamples
+rf_rs
+collect_metrics(rf_rs)
+## Calculo la matriz de cofusion
+rf_rs %>% conf_mat_resampled()
+rf_rs %>% conf_mat()
+## Calculo la matriz de cofusion
+rf_rs %>% conf_mat_resampled(tidy = FALSE)
+## Calculo la matriz de cofusion
+rf_rs %>% conf_mat_resampled(tidy = TRUE)
+## Calculo la matriz de cofusion
+rf_rs %>% conf_mat_resampled(tidy = FALSE)
+rf_rs
+rf_rs %>%
+collect_predictions()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id)
+rf_rs
+rf_rs %>%
+collect_predictions()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id)
+rf_rs %>%
+collect_predictions() %>%
+group_by(id)$.preds
+res <- rf_rs %>%
+collect_predictions() %>%
+group_by(id)
+res$.pred_Adelie
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+roc_curve(species, .pred_Adelie) %>%
+ggplot(aes(1 - specificity, sensitivity, color = id)) +
+geom_abline(lty = 2, color = "gray80", size = 1.5) +
+geom_path(show.legend = FALSE, alpha = 0.6, size = 1.2) +
+coord_equal()
+rf_rs
+rf_rs %>%
+collect_predictions()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id)
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+roc_curve(species, .pred_Adelie)
+rf_rs
+rf_rs %>%
+filter(Resample == "Fold01")
+rf_rs
+rf_rs %>%
+collect_predictions()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id)
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+filter(Resample == "Fold01")
+rf_rs %>%
+collect_predictions()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+filter(id == "Fold01")
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+filter(id == "Fold01") %>%
+roc_curve(obs, VF:L)
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+filter(id == "Fold01") %>%
+roc_curve(species, .pred_Adelie)
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+filter(id == "Fold01") %>%
+roc_curve(species, .pred_Adelie:.pred_Gentoo)
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+filter(id == "Fold01") %>%
+roc_curve(species, .pred_Adelie:.pred_Gentoo) %>%
+autoplot()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+roc_curve(species, .pred_Adelie:.pred_Gentoo) %>%
+autoplot()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+roc_curve(species, .pred_Adelie:.pred_Gentoo) %>%
+ggplot(aes(1 - specificity, sensitivity, color = id)) +
+geom_abline(lty = 2, color = "gray80", size = 1.5) +
+geom_path(show.legend = FALSE, alpha = 0.6, size = 1.2) +
+coord_equal()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+roc_curve(species, .pred_Adelie:.pred_Gentoo) %>%
+autoplot()
+rf_rs
+rf_rs %>%
+collect_predictions()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id)
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>% as.data.frame()
+## Creo una particion aleatoria para la validacion crizada
+set.seed(123);penguin_cv <-vfold_cv(data = penguin_train, v = 5)
+penguin_cv
+## Especificación del modelo
+rf_spec <- rand_forest() %>% set_mode("classification") %>% set_engine("ranger")
+rf_spec
+## Creo el flujo de trabajo para el modelo
+penguin_wf <- workflow() %>% add_formula(species ~ bill_length_mm + bill_depth_mm + flipper_length_mm + body_mass_g)
+penguin_wf
+rf_rs <- penguin_wf %>%
+add_model(rf_spec) %>%
+fit_resamples(
+resamples = penguin_cv,
+metrics = metric_set(accuracy, roc_auc, f_meas),
+control = control_resamples(save_pred = TRUE)
+)
+rf_rs
+## Evaluar el modelo
+collect_metrics(rf_rs)
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>% as.data.frame()
+conf_mat_resampled()
+## Calculo la matriz de cofusion
+rf_rs %>% conf_mat_resampled(tidy = FALSE)
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>% as.data.frame()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+roc_curve(species, .pred_Adelie:.pred_Gentoo) %>%
+ggplot(aes(1 - specificity, sensitivity, color = id)) +
+geom_abline(lty = 2, color = "gray80", size = 1.5) +
+geom_path(show.legend = FALSE, alpha = 0.6, size = 1.2) +
+coord_equal()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+roc_curve(species, .pred_Adelie:.pred_Gentoo) %>%
+autoplot()
+rf_rs %>%
+collect_predictions() %>%
+group_by(id) %>%
+roc_curve(species, .pred_Adelie:.pred_Gentoo) %>%
+autoplot()
+penguin_wf
+rf_spec
+penguin_wf
+penguin_wf %>%
+add_model(rf_spec)
+penguin_split
+penguin_cv
+penguin_split
+penguin_final <- penguin_wf %>%
+add_model(rf_spec) %>%
+last_fit(penguin_split)
+penguin_final
+penguin_final$.metrics
+penguin_final <- penguin_wf %>%
+add_model(rf_spec) %>%
+last_fit(split = penguin_split,
+metrics = metric_set(accuracy, roc_auc, f_meas))
+penguin_final$.metrics
+rf_rs
+penguin_final %>% conf_mat_resampled(tidy = FALSE)
+penguin_final %>% conf_mat_resampled(tidy = FALSE) %>% sum()
+penguin_final %>% conf_mat_resampled(tidy = TRUE)
+penguin_final %>% conf_mat_resampled(tidy = TRUE) %>% sum()
+penguin_final %>% conf_mat_resampled(tidy = TRUE) %>% sum(.$Freq)
+penguin_final %>% conf_mat_resampled(tidy = TRUE) %>% .$Freq %>% sum()
+penguin_final %>% conf_mat_resampled(tidy = FALSE)
+collect_metrics(penguin_final)
+## Evaluar el modelo
+collect_metrics(rf_rs)
+penguin_final
+collect_metrics(penguin_final)
+collect_predictions(penguin_final)
+collect_metrics(penguin_final)
+penguin_final
+collect_predictions(penguin_final)
+collect_predictions(penguin_final) %>% conf_mat(species, .pred_class)
+predict(penguin_final, new_data = penguin_test)
+penguin_final
+penguin_final$splits
+penguin_final$.metrics
+penguin_final$.predictions
+penguin_final$.workflow
+class(penguin_final$.workflow)
+model
+class(model)
+penguin_final$.workflow
+caret::confusionMatrix(predict(model, new_data = filtered_penguins)$.pred_class, filtered_penguins$species)
+penguin_final$.workflow
+penguin_final$.notes
+penguin_final
+penguin_final$.workflow
+model
+## Performance del modelo
+collect_predictions(penguin_final) %>% conf_mat(species, .pred_class)
+penguin_final$.workflow
+list(penguin_final$.workflow)
+str(penguin_final$.workflow)
+penguin_final$.workflow[[1]]
+rf_model <- penguin_final$.workflow[[1]]
+class(rf_model)
+penguin_test
+penguin_test[1, ]
+predict(rf_model, penguin_test[1, ])
+predict(rf_model, penguin_test[1, ], type = "prob")
+penguin_final$.workflow
+predict(penguin_final$.workflow, penguin_test[1, ], type = "prob")
+penguin_final$.workflow[[1]]
+penguin_final$.workflow[[2]]
+predict(penguin_final$.workflow[[1]], penguin_test[1, ], type = "prob")
+predict(penguin_final$.workflow[[1]], penguin_test[1, ], type = "class") # type = "class"
+dir.create(path = "models")
+dir.create(path = "models")
+list.files()
+list.files("models")
+list.files(pattern = "models")
+list.files()
+list.files() %in% "models"
+sum(list.files() %in% "models")
+if(sum(list.files() %in% "models") == 0) dir.create(path = "models")
+if(sum(list.files() %in% "models") == 0) dir.create(path = "models")
+if(sum(list.files() %in% "models") == 0) dir.create(path = "models")
+saveRDS(rf_model, here::here("models", "rf_model.rds"))
+install.packages("here")
+here::set_here()
+saveRDS(rf_model, here::here("models", "rf_model.rds"))
+model
+## Exportar el modelo
+readr::write_rds(model, here::here("models", "model.rds"))
+renv::init()

@@ -1,0 +1,4 @@
+## Repositorio agregar logs a una API de Plumber
+
+Este repositorio indica como agregar logs de una API creada con plumber. Los logs tambien pueden guardarse en formato .RDS en una carpeta en especifico o conectarse a una base de datos, para guardar cada uno de los llamados.
+
